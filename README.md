@@ -11,29 +11,27 @@ governing equations to be populated
 to be populated
 
 ### Results
-Below is a plot of a single particle trajectory. The left subplot shows the trajectory in 3D space, where is traces a helical path as it bounces between the mirror coils (located at z = ±1 m). The right subplot shows the z position of the particle as a function of time. This plot shows a strong oscillating motion as this particle is confined and reflected in the magnetic mirror.
+Below is a plot of a single particle trajectory. The left subplot shows the trajectory in 3D space, where is traces a helical path as it bounces between the mirror coils (located at z = ±1 m). The right subplot shows the z position of the particle as a function of time. This plot shows a strong oscillatory motion as the particle is confined and reflected in the magnetic mirror.
 ![Single particle trajectory](figures/single_sim_Rm2_theta50.png)
 
-Below are plots showing the loss cone for mirror ratios of 1.5, 2, 3, 5, and 10. Each plot shows escaped vs reflected particles as a function of pitch angle. The step in simulation outcome being located at the analytic critical angle confirms the simulation is correctly identifying the loss cone boundary.
+Below are plots showing the loss cone for mirror ratios of 1.5, 2, 3, 5, and 10. Each plot shows escaped vs reflected particles as a function of pitch angle ($\theta$). The step in simulation outcome being located very close to the analytic critical pitch angle ($\theta_c$) confirms the simulation is correctly identifying the loss cone boundary. The error in critical pitch angle can be seen at the top of each plot, with the max error being 1.3% for $R_m$ = 10. The sequence of plots also shows that the critical pitch angle decreases as the mirror ratio increases. This visualizes how confinement improves at higher mirror ratios, albiet with diminishing returns.
 
-Rm = 1.5:
+$R_m$ = 1.5:
 ![Loss cone for Rm=1.5](figures/loss_cone_Rm1.5.png)
 
-Rm = 2:
+$R_m$ = 2:
 ![Loss cone for Rm=2](figures/loss_cone_Rm2.png)
 
-Rm = 3:
+$R_m$ = 3:
 ![Loss cone for Rm=3](figures/loss_cone_Rm3.png)
 
-Rm = 5:
+$R_m$ = 5:
 ![Loss cone for Rm=5](figures/loss_cone_Rm5.png)
 
-Rm = 10:
+$R_m$ = 10:
 ![Loss cone for Rm=10](figures/loss_cone_Rm10.png)
 
-It can be seen in the above sequence of plots that the critical pitch angle decreases as the mirror ratio increases. This shows how confinement improves at higher mirror ratios, albiet with diminishing returns.
-
-Below is a plot comparing the simulated and analytic critical pitch angles. Close agreement at the simulated mirror ratios further validates simulation accuracy.
+Below is a plot comparing the simulated and analytic critical pitch angles. Close agreement at the simulated mirror ratios further validates simulation accuracy. This plot is also a good visualization of improved confinement at higher mirror ratios.
 ![Critical angle vs mirror ratio](figures/crit_curve.png)
 
 ### Validation
