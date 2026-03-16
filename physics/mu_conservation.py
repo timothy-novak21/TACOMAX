@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def check_mu_conservation(state,mirror,CONST):
     """
     Check percent change in magnetic moment to determine accuracy of simulation
@@ -17,7 +18,7 @@ def check_mu_conservation(state,mirror,CONST):
 
     Returns
     -------
-    drift : scalar
+    mu_drift : scalar
         Percent change in magnetic moment to validate fidelity of simulation, unitless
     """
 
@@ -36,6 +37,9 @@ def check_mu_conservation(state,mirror,CONST):
         mu = 0.5 * CONST.m * v_perp_sq / B_mag
         mus.append(mu)
 
-    drift = (np.max(mus) - np.min(mus)) / mus[0]
+    mu_array = np.array(mus)
+    mu_median = np.median(mu_array)
+    mu_mad = np.median(np.abs(mu_array - mu_median))
+    mu_drift = mu_mad / mu_median
 
-    return drift
+    return mu_drift
