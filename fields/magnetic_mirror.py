@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Mirror:
     """
     Class to store variables and functions for a magnetic mirror
@@ -22,12 +23,14 @@ class Mirror:
         Critical pitch angle in degrees, all angles less than this will escape the mirror
     """
 
+
     def __init__(self,length,Rm,Bmax):
         self.length = length # Mirror half length [m]
         self.Rm = Rm # Mirror ratio [-]
         self.Bmax = Bmax # Magnetic field strength at mirror boundary [T]
         self.Bmin = Bmax / Rm # Magnetic field strength at mirror center [T]
         self.theta_c = np.degrees(np.arcsin(1/self.Rm**0.5)) # critical pitch angle [deg]
+
 
     def vector(self,pos):
         """
@@ -73,3 +76,34 @@ class Mirror:
                          Bz]) # B-field z-component [T]
 
         return Bvec
+    
+
+    def field_check(self):
+        """
+        Check that B field equations are set up properly by calculated B field strength at mirror center and boundary
+
+        For use as a manual validation tool during development
+        Call mirror.field_check() to verify field equations
+
+        Parameters
+        ----------
+        none
+        
+        Returns
+        -------
+        none
+        """
+        
+        pos_center = np.array([0.0, 0.0, 0.0]) # cartesian position at center of mirror [m]
+        pos_boundary = np.array([0.0, 0.0, self.length]) # cartesian position at boundary of mirror [m]
+
+        Bvec_center = self.vector(pos_center) # B field vector at mirror center [T]
+        Bvec_boundary = self.vector(pos_boundary) # B field vector at mirror boundary [T]
+
+        Bmag_center = np.linalg.norm(Bvec_center) # B field magnitude at mirror center [T]
+        Bmag_boundary = np.linalg.norm(Bvec_boundary) # B field magnitude at mirror boundary [T]
+
+        # Display calculated vs expected B field values
+        print(f"B at center: {Bmag_center:.4f} T (expected {self.Bmin:.4f})")
+        print(f"B at mirror boundary: {Bmag_boundary:.4f} T (expected {self.Bmax:.4f})")
+        print(f"Actual mirror ratio: {Bmag_boundary/Bmag_center:.4f} (expected {self.Rm:.4f})")
