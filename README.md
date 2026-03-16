@@ -1,4 +1,4 @@
-# TACOMAX - Trajectory and Confinement Of Magnetized Adiabatic eXcursions
+# TACOMAX - Trajectory And Confinement Of Magnetized Adiabatic eXcursions
 TACOMAX is a physics simulation for modeling the trajectory and confinement of charged particles under various magnetic field conditions. It is currently being built in multiple milestones that map to the history of fusion confinement concepts.
 
 ## Milestone 1 - Magnetic Mirrors
