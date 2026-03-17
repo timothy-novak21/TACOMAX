@@ -39,3 +39,23 @@ to be populated
 
 ### Limitations
 to be populated
+
+
+## Milestone 2 - Pure Toroidal Field
+
+### Physics
+to be populated
+
+### Simulation Approach
+to be populated
+
+### Results
+![Single particle trajectory pure toroidal](figures/single_sim_R1_B0.5_theta80.png)
+
+![Pure toroidal drift curve](figures/drift_curve.png)
+
+### Validation
+to be populated
+
+### Limitations
+to be populated
