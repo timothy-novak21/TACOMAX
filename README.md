@@ -50,9 +50,17 @@ to be populated
 to be populated
 
 ### Results
+Single particle trajectory in pure toroidal field (add new with RZ plot):
 ![Single particle trajectory pure toroidal](figures/single_sim_R1_B0.5_theta80.png)
 
+Drift rate vs pitch angle:
 ![Pure toroidal drift curve](figures/drift_curve.png)
+
+Single particle trajectory with poloidal field added:
+
+z vs t comparison between pure toroidal and combined field:
+
+Passing (40 deg) vs trapped/banana orbit (90 deg):
 
 ### Validation
 to be populated
