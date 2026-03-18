@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def accel(t,state,mirror,CONST):
+def accel(t,state,field,CONST):
     """
     Compute the acceleration on a charged particle as a result of Lorentz force
 
@@ -14,8 +14,9 @@ def accel(t,state,mirror,CONST):
     state : array, shape (6,)
         Particle state vector, first 3 entries are cartesian position in meters, next 3 entires are cartesian velocity components in meters per second
 
-    mirror : Mirror object
-        Magnetic mirror object belonging to the Mirror class stored in B_field.py
+    field : object
+        Magnetic field object with a vector(pos) method
+        Compatible with Mirror and Tokamak classes
 
     CONST : named tuple, shape (2,)
         Named tuple containing the physical constants q (proton charge) in Coulombs and m (proton mass) in kilograms
@@ -29,7 +30,7 @@ def accel(t,state,mirror,CONST):
     pos = state[0:3] # position component of state vector [m]
     vel = state[3:6] # velocity component of state vector [m/s]
 
-    B_pos = mirror.vector(pos) # B field at particle position [T]
+    B_pos = field.vector(pos) # B field at particle position [T]
     a = (CONST.q / CONST.m) * np.cross(vel, B_pos) # a = F/m = (q/m)*(E + v X B) [m/s^2]
 
     delta_state = np.concatenate([vel, # change in position is the velocity of the particle [m/s]

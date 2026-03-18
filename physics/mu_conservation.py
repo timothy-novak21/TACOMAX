@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def check_mu_conservation(state,mirror,CONST):
+def check_mu_conservation(state,field,CONST):
     """
     Check percent change in magnetic moment to determine accuracy of simulation
 
@@ -10,8 +10,9 @@ def check_mu_conservation(state,mirror,CONST):
     state : array, shape (6,)
         Particle state vector, first 3 entries are cartesian position in meters, next 3 entires are cartesian velocity components in meters per second
 
-    mirror : object
-        Magnetic mirror object belonging to the Mirror class stored in B_field.py
+    field : object
+        Magnetic field object with a vector(pos) method
+        Compatible with Mirror and Tokamak classes
 
     CONST : named tuple, shape (2,)
         Named tuple containing the physical constants q (proton charge) in Coulombs and m (proton mass) in kilograms
@@ -26,7 +27,7 @@ def check_mu_conservation(state,mirror,CONST):
     for i in range(state.y.shape[1]):
         pos = state.y[0:3, i]
         vel = state.y[3:6, i]
-        B_vec = mirror.vector(pos)
+        B_vec = field.vector(pos)
         B_mag = np.linalg.norm(B_vec)
         B_hat = B_vec / B_mag
 
