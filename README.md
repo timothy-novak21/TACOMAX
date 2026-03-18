@@ -50,8 +50,11 @@ to be populated
 to be populated
 
 ### Results
-Single particle trajectory in pure toroidal field (add new with RZ plot):
-![Single particle trajectory pure toroidal](figures/single_sim_R1_B0.5_theta80.png)
+Single particle trajectory in pure toroidal field:
+![Single particle trajectory pure toroidal](figures/single_sim_R3_B0.5_theta20.png)
+
+Single particle trajectory with poloidal field added:
+![Single particle trajectory poloidal correction](figures/single_sim_R3_B0.5_q2.0_theta20.png)
 
 Drift rate vs pitch angle:
 ![Pure toroidal drift curve](figures/drift_curve.png)
