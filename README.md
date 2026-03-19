@@ -45,7 +45,7 @@ At the mirror point, the particle velocity must be purely perpendicular to be re
 <p align="center">
 $v_{mirror\perp} = v_0$
 </p>
-Appling conservation of magnetic moment between the center and the mirror boundary gives:
+Under an adiabatic assumption, applying conservation of magnetic moment between the center and the mirror boundary gives:
 <p align="center">
 $\frac{mv_{0\perp}^2}{2B_{min}} = \frac{mv_0^2}{2B_{max}}$
 </p>
@@ -64,7 +64,9 @@ $\theta_c = arcsin(\frac{1}{\sqrt{R_m}})$
 This shows that confinement in a magnetic mirror is purely geometric. It depends only on the mirror ratio and pitch angle, but is independent of other quantities such as particle speed. It can also be seen that the critical pitch angle decreases as mirror ratio increases, getting as low as 5.74 degrees for a mirror ratio of 100. This is the primary fault of magnetic mirrors. Although particles may initially launch at a high enough pitch angle to be reflected, collisions continuously refill the loss cone and compromise the confinement of mirrors.
 
 ### Simulation Approach
-to be populated
+To solve for the trajectory of a particle, the simulation numerically integrates the Lorentz force over time. The chosen ODE integrator is scipy.integrate.solve_ivp running RK45.
+
+The integration end time is determined by multiplying the estimated reflection period time by a user input number of reflection periods to simulate through. Integration is ultimately terminated by a set of integration events. There are events to terminate upon particle escape, particle reflection, and completion of the desired number of reflection periods. The integration timespan has some additional margin added to it to ensure that these events trigger integration before the timespan ends.
 
 ### Results
 Below is a plot of a single particle trajectory. The left subplot shows the trajectory in 3D space, where is traces a helical path as it bounces between the mirror coils (located at z = ±1 m). The right subplot shows the z position of the particle as a function of time. This plot shows a strong oscillatory motion as the particle is confined and reflected in the magnetic mirror.
