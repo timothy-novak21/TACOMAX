@@ -1,11 +1,60 @@
 # TACOMAX - Trajectory And Confinement Of Magnetized Adiabatic eXcursions
-TACOMAX is a physics simulation for modeling the trajectory and confinement of charged particles under various magnetic field conditions. It is currently being built in multiple milestones that map to the history of fusion confinement concepts.
+TACOMAX is a physics simulation for modeling the trajectory and confinement of charged particles under various magnetic field conditions. It is currently being built in multiple milestones.
 
 ## Milestone 1 - Magnetic Mirrors
 Magnetic mirrors were one of the earliest fusion confinement concepts. They attempt to confine particles by reflecting them between two high strength coils. These machines fail because of the loss cone -- a region in velocity space from which particles inevitably escape the mirror. This milestone visualizes the loss cone, and quantifies how mirror ratio affects the confinement ability of a magnetic mirror.
 
 ### Physics
-governing equations to be populated
+The magnetic field in the z (mirror axis) direction can be found via the Biot-Savart law. A simpler approximation can be found as a one-term Taylor expansion:
+<p align="center">
+$B_z = B_{min} + (B_{max} - B_{min})(\frac{z}{L})^2$
+</p>
+The radial component of the magnetic field can be found by setting the divergence of the magnetic field equal to zero. This gives:
+<p align="center">
+$B_r = -\frac{1}{2}r \frac{\partial \vec{B}_z}{\partial z}$
+</p>
+Where:
+<p align="center">
+$\frac{\partial \vec{B}_z}{\partial z} = 2(B_{max} - B_{min}) \frac{z}{L^2}$
+</p>
+This can then be projected into Cartesian coordinates:
+<p align="center">
+$$\vec{B} = \begin{bmatrix} B_{{x}} \\ B_{{y}} \\ B_{{z}} \end{bmatrix} = \begin{bmatrix} B_r(\frac{x}{R}) \\ B_r(\frac{y}{R}) \\ B_z \end{bmatrix}$$
+</p>
+
+The trajectory of a charged particle in such a magnetic field can be found by integrating the Lorentz force. The Lorentz force is expressed as:
+<p align="center">
+$\vec{F} = q(\vec{E} + \vec{v} \times \vec{B})$
+</p>
+In the absence of an electric field, the acceleration of a charged particle can be expressed as:
+<p align="center">
+$\vec{a} = \frac{q}{m}(\vec{v} \times \vec{B})$
+</p>
+
+
+The magnetic moment is expressed as:
+<p align="center">
+$\mu = \frac{mv_{\perp}^2}{2B}$
+</p>
+
+Conservation of the magnetic moment holds only when the magnetic field changes slowly over one gyration. The adiabaticity condition is expressed as:
+<p align="center">
+$\varepsilon = \frac{r_L |\nabla B|}{B} \ll 1$
+
+
+The loss cone condition is:
+<p align="center">
+$sin^2\theta < \frac{1}{R_m}$
+</p>
+Solving this for pitch angle gives:
+<p align="center">
+$\theta = arcsin(\frac{1}{\sqrt{R_m}})$
+</p>
+The lowest pitch angle that is reflected in a magnetic mirror is the critical pitch angle. It is defined as:
+<p align="center">
+$\theta_c = arcsin(\frac{1}{\sqrt{R_m}})$
+</p>
+This shows that confinement in a magnetic mirror is purely geometric. It depends only on the mirror ratio and pitch angle, but is independent of other quantities such as particle speed. It can also be seen that the critical pitch angle decreases as mirror ratio increases, getting as low as 5.74 degrees for a mirror ratio of 100. This is the primary fault of magnetic mirrors. Although particles may initially launch at a high enough pitch angle to be reflected, collisions continuously refill the loss cone and compromise the confinement of mirrors.
 
 ### Simulation Approach
 to be populated
@@ -50,7 +99,7 @@ $B_{{tor}} = \frac{B_0R_0}{R}$
 </p>
 This can then be projected into Cartesian coordinates such that:
 <p align="center">
-$$\vec{B_{{tor}}} = \begin{bmatrix} B_{{tor,x}} \\ B_{{tor,y}} \\ B_{{tor,z}} \end{bmatrix} = \begin{bmatrix} B_{{tor}}(\frac{-y}{R}) \\ B_{{tor}}(\frac{x}{R}) \\ 0 \end{bmatrix}$$
+$$\vec{B}_{tor} = \begin{bmatrix} B_{{tor,x}} \\ B_{{tor,y}} \\ B_{{tor,z}} \end{bmatrix} = \begin{bmatrix} B_{{tor}}(\frac{-y}{R}) \\ B_{{tor}}(\frac{x}{R}) \\ 0 \end{bmatrix}$$
 </p>
 The pure toroidal field guides particles circumferentially, but does not confine them vertically. This results in vertical drift, which is comprised of two components. The first is grad-B drift, which is drift that results from the magnetic field gradient. It is defined as:
 <p align="center">
@@ -72,11 +121,11 @@ $B_{{pol}} = \frac{rB_{{tor}}}{R_0 q_{{safety}}}$
 </p>
 This can be projected into Cartesian coordinates such that:
 <p align="center">
-$$\vec{B_{{pol}}} = \begin{bmatrix} B_{{pol,x}} \\ B_{{pol,y}} \\ B_{{pol,z}} \end{bmatrix} = \begin{bmatrix} B_{{pol}}(\frac{-z}{r})(\frac{x}{R}) \\ B_{{pol}}(\frac{-z}{r})(\frac{y}{R}) \\ B_{{pol}}(\frac{R - R_0}{r}) \end{bmatrix}$$
+$$\vec{B}_{pol} = \begin{bmatrix} B_{{pol,x}} \\ B_{{pol,y}} \\ B_{{pol,z}} \end{bmatrix} = \begin{bmatrix} B_{{pol}}(\frac{-z}{r})(\frac{x}{R}) \\ B_{{pol}}(\frac{-z}{r})(\frac{y}{R}) \\ B_{{pol}}(\frac{R - R_0}{r}) \end{bmatrix}$$
 </p>
 The combined magnetic field is:
 <p align="center">
-$\vec{B} = \vec{B_{{tor}}} + \vec{B_{{pol}}}$
+$\vec{B} = \vec{B}_{tor} + \vec{B}_{pol}$
 </p>
 Particles following the helical field lines alternate passing through the outboard side (upward drift) and the inboard side (downward drift), cancelling the vertical drift over one poloidal cycle. Higher safety factors correspond to a weaker poloidal field, resulting in longer time between drift corrections, and larger total z excursion. Lower safety factors correspond to a stronger poloidal field and faster poloidal rotation, resulting in more frequent drift corrections. This limits total z excursion and results in better overall confinement. For this simulation, a safety factor of 2 was used. This means the particle will complete two toroidal cycles before it completes one poloidal cycle and its drift is corrected.
 
