@@ -64,9 +64,13 @@ $\theta_c = arcsin(\frac{1}{\sqrt{R_m}})$
 This shows that confinement in a magnetic mirror is purely geometric. It depends only on the mirror ratio and pitch angle, but is independent of other quantities such as particle speed. It can also be seen that the critical pitch angle decreases as mirror ratio increases, getting as low as 5.74 degrees for a mirror ratio of 100. This is the primary fault of magnetic mirrors. Although particles may initially launch at a high enough pitch angle to be reflected, collisions continuously refill the loss cone and compromise the confinement of mirrors.
 
 ### Simulation Approach
-To solve for the trajectory of a particle, the simulation numerically integrates the Lorentz force over time. The chosen ODE integrator is scipy.integrate.solve_ivp running RK45.
+To solve for the trajectory of a particle, the simulation numerically integrates the Lorentz force over time. The ODE integrator used is scipy.integrate.solve_ivp running RK45.
 
-The integration end time is determined by multiplying the estimated reflection period time by a user input number of reflection periods to simulate through. Integration is ultimately terminated by a set of integration events. There are events to terminate upon particle escape, particle reflection, and completion of the desired number of reflection periods. The integration timespan has some additional margin added to it to ensure that these events trigger integration before the timespan ends.
+The maximum integration timestep is set at 1/200th of a cyclotron period. The time bounds are set to allow a user input number of reflection periods. Integration is ultimately terminated by a set of events. There are events to terminate upon particle escape, particle reflection, and completion of the desired number of reflection periods.
+
+A sweep across a range of mirror ratios is performed to find the critical pitch angle as a function of the mirror ratio. In order to maintain adiabaticity across this sweep, the length of the mirror is scaled to be longer at higher mirror ratios. Maintaining a fixed mirror length at high mirror ratios produces a steep field gradient that violates the adiabaticity condition. Scaling the length resolves this and ensures that conservation of magnetic moment is a valid assumption.
+
+To solve for the critical pitch angle at a given mirror ratio, 500 angles between 1 and 89 degrees are swept through. The outcome of each simulation is then plotted against the pitch angle. The critical pitch angle is calculated as the midpoint between the last escaped and first reflected partcle. This is then checked against an analytic approximation to determine simulation accuracy.
 
 ### Results
 Below is a plot of a single particle trajectory. The left subplot shows the trajectory in 3D space, where is traces a helical path as it bounces between the mirror coils (located at z = ±1 m). The right subplot shows the z position of the particle as a function of time. This plot shows a strong oscillatory motion as the particle is confined and reflected in the magnetic mirror.
@@ -95,8 +99,14 @@ Below is a plot comparing the simulated and analytic critical pitch angles. Clos
 ### Validation
 to be populated
 
+
 ### Limitations
-to be populated
+All simulations performed are single particle. No collisions or collective effects are taken into account. It should be noted that the primary confinement failure of magnetic mirrors comes from collisions scattering otherwise trapped particles into the loss cone.
+
+The field model used is an analytic approximation. An exact Biot-Savart solution from real coil geometry is not used.
+
+
+
 
 
 ## Milestone 2 - Toroidal and Poloidal Fields
