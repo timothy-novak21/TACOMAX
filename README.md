@@ -97,7 +97,8 @@ Below is a plot comparing the simulated and analytic critical pitch angles. Clos
 ![Critical angle vs mirror ratio](figures/updated_crit_curve.png)
 
 ### Validation
-to be populated
+Below is a table of the mirror ratio sweep with validation metrics. Close agreement is found between the simulated and analytic values for critical pitch angle, with the highest percent error being 1.30% at mirror ratio of 10. Low epsilon values indicate all simulations are well within the adiabatic range and magnetic moment should be conserved. Low percent drift in magnetic moment confirms the simulation is behaving as expected for all mirror ratios. Drift increasing with mirror ratios is due to mirror length being scaled proportionally with mirror ratio. Longer mirrors require longer timespans to determine if particles reflect or escape, resuling in more time for magnetic moment to deviate.
+![Milestone 1 validation table](figures/rm_sweep_results_table.png)
 
 
 ### Limitations
