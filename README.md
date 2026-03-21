@@ -170,8 +170,8 @@ The plot below shows the z(t) subplot from the two plots above overlayed on the 
 Below is a plot of drift rate vs pitch angle in a pure toroidal field. The simulated values (blue scatter) were validated against analytic predictions (red line) and showed very close agreement. The mean error was 0.040%, and the max error was 0.085% across the full range of pitches. This close agreement was achieved through implementing both grad-B and curvature drift in the analytic prediction. Earlier comparisons ignored curvature drift, resulting in high errors (>200%) at low pitch angles where curvature drift is the dominating drift source.
 ![Pure toroidal drift curve](figures/drift_curve.png)
 
-Below is a plot of z excursions over a safety factor sweep. The simulated z excursion scales linearly with safety factor, which is expected from analytic theory. The consistent offset above the analytic line is TO BE POPULATED
-![Z excursion vs safety factor](figures/excursion.png)
+Below is a plot of z excursions over a safety factor sweep. The simulated z excursion (blue scatter) scales linearly with safety factor, as is expected from analytic theory. An analytic prediction is also plotted for reference (red line). The excursion is consistently overpredicted by the simulation. This is because the analytic prediction evaluates the drift speed at the magnetic axis. In reality (an in the simulation), the particles orbit around the magnetic axis, sampling an inconsistent magnetic field. TO DO: finish note about how differing magnetic fields cause more drift as the particle gyrates 
+![Z excursion vs safety factor](figures/excursion_vs_q.png)
 
 ### Validation
 Across a full pitch angle sweep, the simulation achieved a mean and maximum error of 0.040% and 0.085%, respectively. Linear z excursion scaling with safety factor was also confirmed across a sweep of factors from 1 to 10. ADD NOTE ABOUT LARMOR RADIUS CORRECTION FOR GRAD B DRIFT
