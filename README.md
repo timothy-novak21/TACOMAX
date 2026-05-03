@@ -159,7 +159,7 @@ Particles following the helical field lines alternate passing through the outboa
 
 
 ### Simulation Approach
-to be populated
+As in Milestone 1, particle trajectories are found by numerical integration of the Lorentz forces.
 
 ### Results
 Below is a plot of a single particle trajectory in a toroidal field. The field can be seen to guide the particle circumferentially as it completes one toroidal transit, however, the particle drifts vertically unbounded. This is the confinement failure mode of pure toroidal fields. Positively charged particles (as shown below) drift upward and leave the bulk plasma and machine.
@@ -184,4 +184,6 @@ It is important to note that the analytic prediction used is for guiding center 
 Across a full pitch angle sweep, the simulation achieved a mean and maximum error of 0.040% and 0.085%, respectively. Linear z excursion scaling with safety factor was also confirmed across a sweep of factors from 1 to 10. When particle gyration was accounted for, simulated excursion was found to differ from analytic predictions by only 0.9 mm (roughly 13% of the Larmor radius at simulated conditions).
 
 ### Limitations
-to be populated
+As in Milestone 1, all simulations performed are single particle. No collisions or collective effects are taken into account.
+
+The field model used is an analytic approximation. An exact Biot-Savart solution from real coil geometry is not used. Individual toroidal and poloidal magnetic fields are not modeled.
