@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 plt.style.use("classic")
 
 
-def plot_pitch_sweep(theta,esc,err_theta_c,epsilon,adiabatic,mirror):
+def plot_pitch_sweep_mirror(theta,esc,err_theta_c,epsilon,adiabatic,mirror):
     fig, ax = plt.subplots()
 
     # Simulation results
@@ -59,7 +59,7 @@ def plot_crit_curve(Rm_sim,theta_c_sim):
     ax.set_xlabel("Mirror Ratio $R_m$ [-]", fontsize=13)
     ax.set_ylabel("Critical Angle [deg]", fontsize=13)
     ax.set_title("Simulated vs Analytic Loss Cone Boundary", fontsize=14)
-    ax.set_xlim(0,np.max(Rm_sim))
+    ax.set_xlim(0,np.max(Rm_analytic))
     ax.set_ylim(0,90)
     ax.legend(fontsize=10)
     ax.grid(True, alpha=0.5)
@@ -71,7 +71,7 @@ def plot_crit_curve(Rm_sim,theta_c_sim):
     plt.show()
 
 
-def plot_single(state,mirror,theta):
+def plot_single_mirror(state,mirror,theta):
     fig = plt.figure()
 
     # Subplot 1: 3d trajectory plot
@@ -98,6 +98,7 @@ def plot_single(state,mirror,theta):
     # Add mirror boundary lines
     ax2.axhline(y=mirror.length, color="r", linestyle="--", label="Mirror Boundaries")
     ax2.axhline(y=-mirror.length, color="r", linestyle="--")
+    ax2.set_xlim(state.t[0],state.t[-1]*1e6)
     ylim = np.max([mirror.length,np.max(np.abs(state.y[2]))]) + 0.1
     ax2.set_ylim(-ylim,ylim)
     ax2.legend()
@@ -237,25 +238,36 @@ def plot_toroid_poloid_comp(state_tor,state_pol,poloid,theta):
     plt.show()
 
 
-def plot_q_sweep(q_safety,z_max,tokamak,v0,theta,CONST):
+def plot_q_sweep_tokamak(q_safety,excursion,tokamak,v0,theta,adj_larmor_offset,CONST):
     q_analytic = np.linspace(np.min(q_safety)-1,np.max(q_safety)+1,200)
     v_par = v0 * np.cos(theta)
     v_perp = v0 * np.sin(theta)
-    omega_c = CONST.q * tokamak.B0 / CONST.m # cyclotron frequency [1/s]
-    r_L = v_perp / omega_c # Larmor radius [m]
     drift = (CONST.m / (CONST.q * tokamak.B0 * tokamak.R0)) * (v_perp**2/2 + v_par**2)
     T_tor = 2 * np.pi * tokamak.R0 / v_par
-    z_ex_analytic = 2 * drift * q_analytic * T_tor / (2 * np.pi)
+    excursion_analytic = 2 * drift * q_analytic * T_tor / (2 * np.pi)
+    discrete_excursion_analytic = 2 * drift * np.array(q_safety) * T_tor / (2* np.pi)
 
-    # Plot
+    # analytic excursion is a guiding center approximation, meaning it does not account for gyration radius
+    # the contribution of gyration radii to excursion would be one Larmor radius at both the upper and lower peaks
+    # this would mean the analytic prediction is off by approx 2 Larmor radii
+    # add 2 Larmor radius to account for this in the prediction -- should make comparison to simulation more realistic
+    if adj_larmor_offset:
+        rL = CONST.m * v_perp / (CONST.q * tokamak.B0) # Larmor radius [m]
+        print(f"Larmor radius: {rL*1e3:.2f} mm")
+        excursion_analytic += 2 * rL # adjusted excursion [m]
+        discrete_excursion_analytic += 2 * rL
+
+    mean_offset = np.mean(excursion - discrete_excursion_analytic)
+
+    # Subplot 1: Z excursion vs q
     fig,ax = plt.subplots()
-    ax.plot(q_analytic,z_ex_analytic,color="crimson",label="Analytic")
-    ax.scatter(q_safety,z_max,color="steelblue",zorder=3,label="Simulated")
-
+    ax.plot(q_analytic,excursion_analytic,color="crimson",label="Analytic")
+    ax.scatter(q_safety,excursion,color="steelblue",zorder=3,label="Simulated")
+    
     # Labels
     ax.set_xlabel("Safety Factor")
     ax.set_ylabel("Z Excursion [m]")
-    ax.set_title("Simulated and Analytic Z Excursion vs Safety Factor")
+    ax.set_title(f"Simulated Z Excursion vs Safety Factor  |  Mean Offset = {mean_offset*1000:.1f} mm")
     ax.legend(loc="upper left")
 
     # Lims and grid
@@ -296,7 +308,6 @@ def plot_colormap(state,tokamak,theta):
 
 
 def plot_RZ(state,tokamak,theta):
-    # not implemented -- for use in milestone 3
     fig,ax = plt.subplots()
 
     # Rz poloidal projection
@@ -321,7 +332,7 @@ def plot_RZ(state,tokamak,theta):
     ax.set_ylabel("Z [m]")
     ax.set_aspect("equal")
 
-    ax.set_title(f"Single Particle Simulation  |  $R_0$ = {tokamak.R0} m  |  $B_0$ = {tokamak.B0} T  |  $q_{{safety}}$ = {tokamak.q_safety}  |  θ = {np.degrees(theta):.1f} deg")
+    ax.set_title(f"Single Particle Simulation  |  $R_0$ = {tokamak.R0} m  |  $B_0$ = {tokamak.B0} T  |  $q_{{safety}}$ = {tokamak.q_safety}  |  θ = {np.degrees(theta):.1f} deg",pad=15)
 
     # Save and show
     fig.set_size_inches(14,7, forward=True)
