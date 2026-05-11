@@ -73,7 +73,7 @@ A sweep across a range of mirror ratios is performed to find the critical pitch 
 
 To solve for the critical pitch angle at a given mirror ratio, 500 angles between 1 and 89 degrees are swept through. The outcome of each simulation is then plotted against the pitch angle. The critical pitch angle is calculated as the midpoint between the last escaped and first reflected particle. This is then checked against an analytic approximation to determine simulation accuracy.
 
-All simulations use a 5 keV proton which is representative of thermal energies relevant to fusion mirror machines.
+All figures shown currently use a 5 keV proton. Current code has been updated to calculate the energy from 150 million K (12.93 keV), but figures have yet to be updated.
 
 ### Results
 Below is a plot of a single particle trajectory. The left subplot shows the trajectory in 3D space, where it traces a helical path as it bounces between the mirror coils (located at z = ±1 m). The right subplot shows the z position of the particle as a function of time. This plot shows a strong oscillatory motion as the particle is confined and reflected in the magnetic mirror.
