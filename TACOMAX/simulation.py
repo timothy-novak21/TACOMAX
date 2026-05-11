@@ -4,13 +4,14 @@ import scipy.integrate as integrate
 from fields.magnetic_mirror import Mirror
 from fields.tokamak import Tokamak
 from physics.lorentz import accel
-from analysis.plotting import plot_pitch_sweep, plot_crit_curve, plot_drift, plot_toroid_poloid_comp, plot_q_sweep
+from analysis.plotting import plot_pitch_sweep_mirror, plot_crit_curve, plot_drift, plot_toroid_poloid_comp, plot_q_sweep_tokamak, plot_RZ, plot_orbit_sweep
 from physics.adiabaticity import invariance_check
 from physics.mu_conservation import check_mu_conservation
 from physics.drift_rate import check_drift_rate
+from physics.orbits import classify_analytic_orbit, classify_sim_orbit
 
 
-def sim_single_mirror(mirror,theta,v0,mode,CONST):
+def sim_single_mirror(mirror,theta,v0,mode,cycles,CONST):
     """
     Run a single particle magnetic mirror simulation
 
@@ -49,7 +50,8 @@ def sim_single_mirror(mirror,theta,v0,mode,CONST):
     
     # Integration time conditions computed based on particle velocity and mirror length
     T_ref_est = 4 * mirror.length / v0 # estimate reflection period [s] 
-    t_span = [0,4 * T_ref_est] # integration time bounds [s]
+    t_end = 1.5 * cycles * T_ref_est # 1.5x multiplier to add extra margin on top of number of cycles being completed, end time [s]
+    t_span = [0,t_end] # integration time bounds [s]
 
     omega_c = CONST.q * mirror.Bmax / CONST.m # cyclotron angular frequency [rad/s]
     T_cyclotron = 2 * np.pi / omega_c # cyclotron period [s]
@@ -69,6 +71,15 @@ def sim_single_mirror(mirror,theta,v0,mode,CONST):
     reflected.terminal = True # stop integration if particle v_par changes sign
     reflected.direction = -1 # stop integration when v_par crosses zero going negative
     
+    # Define event to terminate integration after particle makes specified number of reflections
+    def transit(t,state,mirror,CONST):
+        if t < 0.90 * cycles * T_ref_est: # don't allow event to trigger until 90% of predicted time passes
+            return 1
+        return state[2] - state0[2] # full transit is when z position returns to initial state
+    
+    transit.terminal = True # stop integration if particle completes a full transit
+    transit.direction = 1 # stop integration when particle crosses initial z going positive
+
     # Solve ODE with events set based on mode
     if mode == "sweep":
         # sweep mode runs with both escaped and reflected termination events
@@ -92,14 +103,15 @@ def sim_single_mirror(mirror,theta,v0,mode,CONST):
         state = integrate.solve_ivp(accel, t_span, state0,
                                     method="RK45", max_step=max_step,
                                     rtol=1e-10, atol=1e-12,
-                                    args=(mirror,CONST))
+                                    args=(mirror,CONST),
+                                    events=[transit])
     else:
         raise ValueError(f"Invalid mode '{mode}'. Expected 'sweep', 'mu', or 'single'.")
 
     return state
 
 
-def sim_mirror_sweep(mirror,v0,N,CONST):
+def sim_pitch_sweep_mirror(mirror,v0,N,CONST):
     """
     Run a series of simulations sweeping through a collection of pitch angles between 1 and 89 degrees
     Calculate and return a simulated critical pitch angle
@@ -133,9 +145,10 @@ def sim_mirror_sweep(mirror,v0,N,CONST):
 
     # Run simulations
     mode = "sweep"
+    cycles = 1
     for i in range(0,len(theta)):
         print(f"Running simulation {i+1}/{N}: theta = {np.degrees(theta[i]):.1f} deg")
-        state = sim_single_mirror(mirror,theta[i],v0,mode,CONST)
+        state = sim_single_mirror(mirror,theta[i],v0,mode,cycles,CONST)
         esc[i] = len(state.t_events[0]) > 0 # t_events[0] == 1 when particle escapes mirror
         
     # Calc simulated critical pitch angle to compare to analytical
@@ -154,12 +167,12 @@ def sim_mirror_sweep(mirror,v0,N,CONST):
     [epsilon,adiabatic] = invariance_check(v0,mirror,CONST) # adiabaticity condition for given mirror and v0
 
     # Plot particle end state (escaped or reflected) as a function of pitch angle
-    plot_pitch_sweep(theta,esc,err_theta_c,epsilon,adiabatic,mirror)
+    plot_pitch_sweep_mirror(theta,esc,err_theta_c,epsilon,adiabatic,mirror)
     
     return [theta_c_sim,err_theta_c]
 
 
-def sim_rm_sweep(Rm,Bmax,v0,N,CONST):
+def sim_rm_sweep_mirror(Rm,Bmax,v0,N,CONST):
     """
     Run through pitch sweeps for each mirror ratio and plot critical pitch angle curve
     
@@ -197,12 +210,13 @@ def sim_rm_sweep(Rm,Bmax,v0,N,CONST):
     err_theta_c_sim = np.zeros(len(mirror_list))
     for j in range(0,len(mirror_list)):
         print(f"Running sweep {j + 1:.0f}/{len(mirror_list):.0f}")
-        [theta_c_sim[j],err_theta_c_sim[j]] = sim_mirror_sweep(mirror_list[j],v0,N,CONST) # find simulated critical pitch angle for current mirror/Rm [deg]
+        [theta_c_sim[j],err_theta_c_sim[j]] = sim_pitch_sweep_mirror(mirror_list[j],v0,N,CONST) # find simulated critical pitch angle for current mirror/Rm [deg]
 
     # After sweep is completed, run single sim at critical pitch angle to check mu drift
     for k in range(0,len(mirror_list)):
         mode = "mu"
-        state_check = sim_single_mirror(mirror_list[k],np.radians(mirror_list[k].theta_c + 5),v0,mode,CONST)
+        cycles = 1
+        state_check = sim_single_mirror(mirror_list[k],np.radians(mirror_list[k].theta_c + 5),v0,mode,cycles,CONST)
         mu_drift = check_mu_conservation(state_check,mirror_list[k],CONST)
 
         [epsilon,adiabatic] = invariance_check(v0,mirror_list[k],CONST) # adiabaticity condition for given mirror and v0
@@ -214,7 +228,7 @@ def sim_rm_sweep(Rm,Bmax,v0,N,CONST):
     plot_crit_curve(Rm,theta_c_sim)
 
 
-def sim_single_tokamak(tokamak,theta,v0,mode,cycles,CONST):
+def sim_single_tokamak(tokamak,theta,v0,mode,CONST,cycles=None):
     """
     Run a single particle toroidal field simulation
 
@@ -230,11 +244,11 @@ def sim_single_tokamak(tokamak,theta,v0,mode,cycles,CONST):
         Initial particle speed in meters per second
 
     mode : string
-        "sweep" | "single" | "banana"
+        "sweep" | "single" | "orbit"
         Controls integration time and termination events
         sweep - t_end determined from estimated drift, no termination events
         single - termiantes after specified number of poloidal cycles through transit event
-        banana - fixed t_end based on bounce period, no termination events
+        orbit - fixed t_end based on estimated bounce period, no termination events, particle initial position slightly outboard of magnetic axis
 
     cycles : scalar
         Number of poloidal cycles to integrate over, unitless
@@ -253,9 +267,12 @@ def sim_single_tokamak(tokamak,theta,v0,mode,cycles,CONST):
     v0_par = v0 * np.cos(theta) # initial particle velocity parallel to B field [m/s]
 
     # Package inital state vector
-    if mode == "banana":
-        state0 = [tokamak.R0 + 0.3, 0.0, 0.0, # start slightly outboard of magnetic axis [m]
-                  0.0, 0.0, v0] # all velocity perpendicular to B [m/s]
+    if mode == "orbit":
+        state0 = [tokamak.R0 + 0.5*tokamak.r0, 0.0, 0.0, # start slightly outboard of magnetic axis [m]
+                  v0_perp, v0_par, 0.0]
+    elif mode == "banana":
+        state0 = [tokamak.R0 + (1/3)*tokamak.r0, 0.0, 0.0,
+                  0.0, 0.0, v0]
     else:
         state0 = [tokamak.R0, 0.0, 0.0, # initial position [m]
                   v0_perp, v0_par, 0.0] # initial velocity [m/s]
@@ -307,12 +324,12 @@ def sim_single_tokamak(tokamak,theta,v0,mode,cycles,CONST):
                                     rtol=1e-10, atol=1e-12,
                                     args=(tokamak,CONST),
                                     events=[transit])
-    elif mode == "banana":
+    elif mode == "orbit" or mode == "banana":
         # Not currently implemented -- for use in milestone 3
         # Estimate bounce period from minor radius transit time
         # Run for 100 bounce periods to fill banana shape in RZ plot
         T_bounce_est = 4 * tokamak.r0 / v0 # estimate bounce period [s]
-        t_end = 100 * T_bounce_est # integration end time [s]
+        t_end = 75 * T_bounce_est # integration end time [s]
         t_span = [0,t_end] # integration time bounds [s]
 
         state = integrate.solve_ivp(accel, t_span, state0,
@@ -383,7 +400,7 @@ def sim_toroid_poloid_comp(toroid,poloid,v0,theta,CONST):
     plot_toroid_poloid_comp(state_tor,state_pol,poloid,theta)
     
 
-def sim_tokamak_pitch_sweep(tokamak,v0,N,CONST):
+def sim_pitch_sweep_tokamak(tokamak,v0,N,CONST):
     """
     Run simulations sweeping through pitch angles to compare to analytic drift predictions
 
@@ -418,14 +435,14 @@ def sim_tokamak_pitch_sweep(tokamak,v0,N,CONST):
         print(f"Running simulation {i+1}/{len(theta)}")
         mode = "sweep"
         cycles = 1
-        state = sim_single_tokamak(tokamak,theta[i],v0,mode,cycles,CONST)
+        state = sim_single_tokamak(tokamak,theta[i],v0,mode,CONST,cycles)
         drift_sim[i], drift_analytic[i], err[i] = check_drift_rate(state,tokamak,v0,theta[i],CONST)
 
     # plot results
     plot_drift(drift_sim,theta,err,tokamak,v0,CONST)
 
 
-def sim_tokamak_q_sweep(q_list,R0,r0,B0,v0,theta,CONST):
+def sim_q_sweep_tokamak(q_list,R0,r0,B0,v0,theta,CONST):
     """
     Run tokamak simulations sweeping through a list of safety factors to validate linear relationship between q and z excursion
 
@@ -461,11 +478,15 @@ def sim_tokamak_q_sweep(q_list,R0,r0,B0,v0,theta,CONST):
 
     # run sweep
     for i in range(0,len(q_list)):
+        print(f"Running simulation {i+1:.0f}/{len(q_list):.0f}")
         tokamak = Tokamak(R0,r0,B0,q_list[i])
         mode = "single"
         cycles = 1
-        state = sim_single_tokamak(tokamak,theta,v0,mode,cycles,CONST)
+        state = sim_single_tokamak(tokamak,theta,v0,mode,CONST,cycles)
         z_ex[i] = np.max(state.y[2]) - np.min(state.y[2])
         
     # plot results
-    plot_q_sweep(q_list,z_ex,tokamak,v0,theta,CONST)
+    adj_larmor_offset = True # flag to adjust excursion by 2 time the Larmor radius
+    plot_q_sweep_tokamak(q_list,z_ex,tokamak,v0,theta,adj_larmor_offset,CONST)
+
+    
