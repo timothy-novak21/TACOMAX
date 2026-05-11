@@ -4,11 +4,10 @@ import scipy.integrate as integrate
 from fields.magnetic_mirror import Mirror
 from fields.tokamak import Tokamak
 from physics.lorentz import accel
-from analysis.plotting import plot_pitch_sweep_mirror, plot_crit_curve, plot_drift, plot_toroid_poloid_comp, plot_q_sweep_tokamak, plot_RZ, plot_orbit_sweep
+from analysis.plotting import plot_pitch_sweep_mirror, plot_crit_curve, plot_drift, plot_toroid_poloid_comp, plot_q_sweep_tokamak
 from physics.adiabaticity import invariance_check
 from physics.mu_conservation import check_mu_conservation
 from physics.drift_rate import check_drift_rate
-from physics.orbits import classify_analytic_orbit, classify_sim_orbit
 
 
 def sim_single_mirror(mirror,theta,v0,mode,cycles,CONST):

@@ -3,9 +3,9 @@ from collections import namedtuple
 
 from fields.magnetic_mirror import Mirror
 from fields.tokamak import Tokamak
-from simulation import sim_single_mirror, sim_rm_sweep_mirror, sim_single_tokamak, sim_pitch_sweep_tokamak, sim_toroid_poloid_comp, sim_q_sweep_tokamak, sim_orbit_pitch_sweep
+from simulation import sim_single_mirror, sim_rm_sweep_mirror, sim_single_tokamak, sim_pitch_sweep_tokamak, sim_toroid_poloid_comp, sim_q_sweep_tokamak
 from analysis.plotting import plot_single_mirror, plot_single_tokamak, plot_colormap, plot_RZ
-from physics.orbits import classify_sim_orbit, orbit_width
+from physics.orbits import orbit_width
 
 # Milestone 1
 RUN_MIRROR_SWEEP = False
@@ -20,18 +20,19 @@ RUN_Q_SAFETY_SWEEP = False
 RUN_TOKAMAK_COLOR = False
 
 # Milestone 3
-RUN_PASSING_ORBIT = True
-RUN_BANANA_ORBIT = True
+RUN_PASSING_ORBIT = False
+RUN_BANANA_ORBIT = False
 
-# Constants: q = proton charge [C], m = proton mass [kg]
-PhysicalConstants = namedtuple("PhysicalConstants", ["q","m"])
-CONST = PhysicalConstants(q=1.602e-19, m=1.673e-27)
+# Constants: q = proton charge [C], m = proton mass [kg], kB = Boltzmann constant [eV/K]
+PhysicalConstants = namedtuple("PhysicalConstants", ["q","m","kB"])
+CONST = PhysicalConstants(q=1.602e-19, m=1.673e-27, kB=8.617e-5)
 
 # Define mirror ratio array and max B field
 Bmax = 0.5 # B field strength at mirror [T]
 
-# Define and print initial particle speed
-KE_eV = 5e3 # physically relevant kinetic energy for a proton at fusion conditions [eV]
+# Define initial particle speed
+T = 150e6 # set temperature to 150 million K
+KE_eV = T * CONST.kB # convert to eV, roughly 12.93 keV for 150 million K
 v0 = (CONST.q * KE_eV / (0.5 * CONST.m))**0.5 # solve for particle velocity based on desired KE [m/s]
 
 if RUN_MIRROR_SWEEP:
