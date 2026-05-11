@@ -114,6 +114,7 @@ The field model used is an analytic approximation. An exact Biot-Savart solution
 
 
 ## Milestone 2 - Toroidal and Poloidal Fields
+To solve the confinement issues presented by magnetic mirrors, the magnetic field lines are curved to form a torus. This milestone visualizes particle drift under a pure toroidal field, and the need for a poloidal field to correct this drift. The combination of these two magnetic fields forms the basis of the tokamak.
 
 ### Physics
 A toroidal magnetic field has magnitude that scales inversely with radial position. The magnitude at a given radius can be found by:
@@ -152,12 +153,6 @@ $\vec{B} = \vec{B}_{tor} + \vec{B}_{pol}$
 </p>
 Particles following the helical field lines alternate passing through the outboard side (upward drift) and the inboard side (downward drift), cancelling the vertical drift over one poloidal cycle. Higher safety factors correspond to a weaker poloidal field, resulting in longer time between drift corrections, and larger total z excursion. Lower safety factors correspond to a stronger poloidal field and faster poloidal rotation, resulting in more frequent drift corrections. This limits total z excursion and results in better overall confinement. For this simulation, a safety factor of 2 was used. This means the particle will complete two toroidal cycles before it completes one poloidal cycle and its drift is corrected.
 
-
-
-
-
-
-
 ### Simulation Approach
 As in Milestone 1, particle trajectories are found by numerical integration of the Lorentz forces.
 
@@ -187,3 +182,14 @@ Across a full pitch angle sweep, the simulation achieved a mean and maximum erro
 As in Milestone 1, all simulations performed are single particle. No collisions or collective effects are taken into account.
 
 The field model used is an analytic approximation. An exact Biot-Savart solution from real coil geometry is not used. Individual toroidal and poloidal magnetic fields are not modeled.
+
+
+
+## IN PROGRESS Milestone 3 - Orbit Classification
+This milestone visualizes the passing and trapped particle orbits within a tokamak. The details of this section are to be populated, but for now enjoy a few poloidal section RZ plots of the different orbit regimes.
+
+Passing orbit:
+![Passing orbit RZ](figures/RZ_single_sim_R3_B0.5_q2.0_theta20.png)
+
+Trapped orbit:
+![Trapped orbit RZ](figures/RZ_single_sim_R3_B0.5_q2.0_theta80.png)
